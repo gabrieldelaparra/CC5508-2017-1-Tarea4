@@ -136,11 +136,11 @@ class PixelGraph:
 
 
 class DisjointSet:
-    def __init__(self, n, k):
-        self.parent = [x for x in range(n)]
-        self.rank = [0 for x in range(n)]
-        self.size = [1 for x in range(n)]
-        self.threshold = [k for x in range(n)]
+    def __init__(self, nodeCount, k):
+        self.parent = [x for x in range(nodeCount)]
+        self.rank = [0 for x in range(nodeCount)]
+        self.size = [1 for x in range(nodeCount)] #For MinSize;
+        self.threshold = [k for x in range(nodeCount)]
         self.thresholdConstant = k
 
     def Find(self, node):
@@ -152,26 +152,27 @@ class DisjointSet:
         node1Root = self.Find(node1)
         node2Root = self.Find(node2)
 
-        if(node1Root != node2Root):
-            if (weigthThreshold <= node1Root.threshold) and (weigthThreshold <= node2Root.threshold):
+        if(node1Root == node2Root):
+            return
+        if (weigthThreshold <= node1Root.threshold) and (weigthThreshold <= node2Root.threshold):
+            if self.rank[node1Root] < self.rank[node2Root]:
+                self.parent[node1Root] = node2Root
+                self.size[node1Root] += self.size[node2Root]
+                self.threshold[node1Root] = weigthThreshold + \
+                    self.thresholdConstant / self.size[node1Root]
 
-                if self.rank[node1Root] < self.rank[node2Root]:
-                    self.parent[node1Root] = node2Root
-                    self.size[node1Root] += self.size[node2Root]
-                    self.threshold[node1Root] = weigthThreshold + \
-                        self.thresholdConstant / self.size[node1Root]
+            elif self.rank[node1Root] > self.rank[node2Root]:
+                self.parent[node2Root] = node1Root
+                self.size[node2Root] += self.size[node1Root]
+                self.threshold[node2Root] = weigthThreshold + \
+                    self.thresholdConstant / self.size[node2Root]
 
-                elif self.rank[node1Root] > self.rank[node2Root]:
-                    self.parent[node2Root] = node1Root
-                    self.size[node2Root] += self.size[node1Root]
-                    self.threshold[node2Root] = weigthThreshold + \
-                        self.thresholdConstant / self.size[node2Root]
-
-                else:
-                    self.parent[node2Root] = node1Root
-                    self.threshold[node2Root] = weigthThreshold + \
-                        self.thresholdConstant / self.size[node2Root]
-                    self.rank[node1Root] += 1
+            else:
+                self.parent[node2Root] = node1Root
+                self.size[node2Root] += self.size[node1Root]
+                self.threshold[node2Root] = weigthThreshold + \
+                    self.thresholdConstant / self.size[node2Root]
+                self.rank[node1Root] += 1
 
 
 # def thresholdFunction(size, k):
